@@ -57,17 +57,17 @@ def get_response(user_input, session_id):
         for doc_text in results['documents'][0]:
             formatted_documents.append({"snippet": doc_text})
 
-    # System preamble
+    # --- System preamble ---
     preamble_prompt = """
     You are an expert tutor on the topics provided in the documents.
     Use the following retrieved documents and chat history to answer the user's question accurately and thoroughly.
-    If the documents don't contain enough information to answer the question, state that you cannot answer from the given context.
-    Do not use any external knowledge.
+    If the documents don't contain enough information, you may also use your general knowledge to answer the question completely.
+    When giving multiple points, always format them as bullet points, each on a separate line starting with "* ".
     """
 
-    # --- FIXED: Use a currently supported Cohere model ---
+    # --- Get Cohere response ---
     response = co.chat(
-        model="command-xlarge-nightly",  # <-- Updated from deprecated 'command-r'
+        model="command-xlarge-nightly",
         message=user_input,
         chat_history=conversation_history,
         preamble=preamble_prompt,
@@ -75,7 +75,15 @@ def get_response(user_input, session_id):
     )
 
     bot_response = response.text
+
+    # --- Post-process: ensure each bullet is on its own line ---
+    if "*" in bot_response:
+        bot_response = bot_response.replace("* ", "\n* ").strip()
+    bot_response = "\n".join([line for line in bot_response.split("\n") if line.strip() != ""])
+
+    # --- Save to session ---
     add_to_history(session_id, user_input, bot_response)
+
     return bot_response
 
 # --- 4. Chat Loop ---

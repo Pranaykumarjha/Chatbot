@@ -27,7 +27,7 @@ def extract_text_from_pdf(pdf_file_path):
             text += page.extract_text() or ""
     return text
 
-pdf_path = "Competitive Programmer's Handbook.pdf"
+pdf_path = "CS3451-INTRODUCTION TO OPERATING SYSTEM-1807676842-Unit-I - Introduction (1).pdf"
 pdf_text = extract_text_from_pdf(pdf_path)
 
 # --- 3. Split text into chunks ---
